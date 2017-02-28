@@ -1,0 +1,19 @@
+{
+    "name": "wearejust/phone",
+    "type": "project",
+    "require": {
+        "symfony/console": "^3.2",
+        "symfony/yaml": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Just\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "John in 't Hout",
+            "email": "john.inthout@wearejust.com"
+        }
+    ]
+}
