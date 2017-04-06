@@ -18,7 +18,7 @@ class CallCommand extends BaseCommand
         $this
             ->setName('call')
             ->addArgument('phonenumber', InputArgument::REQUIRED)
-            ->setDescription('Set the phone in a DND state.');
+            ->setDescription('Call a phonenumber or a mapped number.');
     }
 
     /**
@@ -32,17 +32,20 @@ class CallCommand extends BaseCommand
     {
         $phonenumber = trim($input->getArgument('phonenumber'));
 
-        $query = str_replace(' ', '', $phonenumber);
-        $query = str_replace('-', '', $query);
-        $query = str_replace('+31', '031', $query);
+        $config = $this->getYamlConfig();
+        if (isset($config['map'][$phonenumber])) {
+            $phonenumber = $config['map'][$phonenumber];
+        }
 
-        if (!is_numeric($query)) {
-            echo 'Geen geldig telefoonnummer';
+        $phonenumber = str_replace('+', '0', $phonenumber);
+        $phonenumber = preg_replace('/\s|\(|\)|-/', '', $phonenumber);
+
+        if (!is_numeric($phonenumber)) {
+            echo 'Not a valid phonenumber';
             die();
         }
 
-        $keys = array_merge(str_split($query), ['SEND']);
+        $keys = array_merge(str_split($phonenumber), ['SEND']);
         $this->sendAction($keys);
-        
     }
 }
