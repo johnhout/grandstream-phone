@@ -1,3 +1,2 @@
 ip: 127.0.0.1
 passcode: yoursecretpasscode
-wget_bin: /usr/local/bin/wget

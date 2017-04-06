@@ -14,15 +14,13 @@ class BaseCommand extends Command
         $parts = implode(':', $keys);
         
         $cmd = sprintf(
-            '%s "http://%s/cgi-bin/api-send_key?keys=%s&passcode=%s" >>  /dev/null', 
-            $config['wget_bin'],
+            'http://%s/cgi-bin/api-send_key?keys=%s&passcode=%s', 
             $config['ip'], 
             $parts, 
             $config['passcode']
         );
 
-
-        shell_exec($cmd);
+        file_get_contents($cmd);
     }
 
     public function getYamlConfig()
