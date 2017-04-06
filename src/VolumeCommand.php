@@ -17,8 +17,8 @@ class VolumeCommand extends BaseCommand
     {
         $this
             ->setName('vol')
-            ->addArgument('direction', InputArgument::REQUIRED, 'Who do you want to greet?')
-            ->setDescription('Set the phone in a DND state.');
+            ->addArgument('direction', InputArgument::REQUIRED)
+            ->setDescription('Set the phone volume [up] or [down].');
     }
 
     /**
@@ -39,6 +39,5 @@ class VolumeCommand extends BaseCommand
                 $this->sendAction(['VDOWN']);
                 break;
         }
-        $this->sendAction(['MUTE']);
     }
 }

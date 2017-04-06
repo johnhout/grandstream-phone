@@ -16,7 +16,7 @@ class DNDCommand extends BaseCommand
     {
         $this
             ->setName('dnd')
-            ->setDescription('Set the phone in a DND state.');
+            ->setDescription('Toggle phone Do Not Disturb state.');
     }
 
     /**
