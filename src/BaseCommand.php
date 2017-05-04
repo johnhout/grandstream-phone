@@ -7,6 +7,29 @@ use Symfony\Component\Yaml\Yaml;
 
 class BaseCommand extends Command
 {
+    public function selectAvailableLine()
+    {
+        $config = $this->getYamlConfig();
+
+        $cmd = sprintf(
+            'http://%s/cgi-bin/api-get_line_status?passcode=%s', 
+            $config['ip'], 
+            $config['passcode']
+        );
+
+        $line = 1;
+        $status = file_get_contents($cmd);
+        $status = json_decode($status);
+        foreach ($status->body as $l) {
+            if ($l->state == 'idle') {
+                $line = $l->line;
+                break;
+            }
+        }
+
+        $this->sendAction(['LINE' . $line]);
+    }
+
     public function sendAction(array $keys)
     {
         $config = $this->getYamlConfig();
@@ -20,7 +43,7 @@ class BaseCommand extends Command
             $config['passcode']
         );
 
-        file_get_contents($cmd);
+        return file_get_contents($cmd);
     }
 
     public function getYamlConfig()

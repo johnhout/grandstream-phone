@@ -30,6 +30,8 @@ class CallCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->selectAvailableLine();
+        
         $phonenumber = trim($input->getArgument('phonenumber'));
 
         $config = $this->getYamlConfig();
