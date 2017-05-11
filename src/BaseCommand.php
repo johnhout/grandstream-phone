@@ -17,17 +17,21 @@ class BaseCommand extends Command
             $config['passcode']
         );
 
-        $line = 1;
+        $line = -1;
+        $busy = false;
         $status = file_get_contents($cmd);
         $status = json_decode($status);
         foreach ($status->body as $l) {
-            if ($l->state == 'idle') {
+            if ($l->state != 'idle') {
+                $busy = true;
+            } else if ($line == -1) {
                 $line = $l->line;
-                break;
             }
         }
 
-        $this->sendAction(['LINE' . $line]);
+        if ($busy) {
+            $this->sendAction(['LINE' . $line]);
+        }
     }
 
     public function sendAction(array $keys)
