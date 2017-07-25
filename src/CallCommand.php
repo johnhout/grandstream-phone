@@ -17,7 +17,7 @@ class CallCommand extends BaseCommand
     {
         $this
             ->setName('call')
-            ->addArgument('phonenumber', InputArgument::REQUIRED)
+            ->addArgument('query', InputArgument::REQUIRED)
             ->setDescription('Call a phonenumber or a mapped number.');
     }
 
@@ -30,13 +30,25 @@ class CallCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->selectAvailableLine();
-        
-        $phonenumber = trim($input->getArgument('phonenumber'));
+        $query = trim($input->getArgument('query'));
+        $phonenumber = str_replace(' ', '', $query);
 
         $config = $this->getYamlConfig();
         if (isset($config['map'][$phonenumber])) {
             $phonenumber = $config['map'][$phonenumber];
+
+        } else {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "{$config['intern_api_url']}users/phone?name={$query}");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "X-API-KEY: {$config['intern_api_key']}"
+            ]);
+            $response = json_decode(curl_exec($ch));
+            curl_close($ch);
+            if (isset($response->number)) {
+                $phonenumber = $response->number;
+            }
         }
 
         $phonenumber = str_replace('+', '0', $phonenumber);
@@ -47,6 +59,7 @@ class CallCommand extends BaseCommand
             die();
         }
 
+        $this->selectAvailableLine();
         $keys = array_merge(str_split($phonenumber), ['SEND']);
         $this->sendAction($keys);
     }
