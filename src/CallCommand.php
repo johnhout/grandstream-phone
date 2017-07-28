@@ -18,6 +18,7 @@ class CallCommand extends BaseCommand
         $this
             ->setName('call')
             ->addArgument('query', InputArgument::REQUIRED)
+            ->addArgument('external', InputArgument::OPTIONAL)
             ->setDescription('Call a phonenumber or a mapped number.');
     }
 
@@ -31,6 +32,7 @@ class CallCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $query = trim($input->getArgument('query'));
+        $external = (trim($input->getArgument('external')) == 1);
         $phonenumber = str_replace(' ', '', $query);
 
         $config = $this->getYamlConfig();
@@ -44,10 +46,15 @@ class CallCommand extends BaseCommand
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 "X-API-KEY: {$config['intern_api_key']}"
             ]);
+
             $response = json_decode(curl_exec($ch));
             curl_close($ch);
-            if (isset($response->number)) {
-                $phonenumber = $response->number;
+            if ($external) {
+                if (isset($response->phone_number)) {
+                    $phonenumber = $response->phone_number;
+                }
+            } else if (isset($response->phone_internal)) {
+                $phonenumber = $response->phone_internal;
             }
         }
 
