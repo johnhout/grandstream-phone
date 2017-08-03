@@ -2,5 +2,6 @@ ip: 127.0.0.1
 passcode: yoursecretpasscode
 intern_api_url: https://intern.wearejust.com/api/v1/
 intern_api_key: key
+phonebook: https://cfg.business-isp.nl/your/phonebook.xml
 map:
  example: '123'

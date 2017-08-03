@@ -31,7 +31,7 @@ class CallCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $query = trim($input->getArgument('query'));
+        $query = strtolower(trim($input->getArgument('query')));
         $external = (trim($input->getArgument('external')) == 1);
         $phonenumber = str_replace(' ', '', $query);
 
@@ -39,7 +39,7 @@ class CallCommand extends BaseCommand
         if (isset($config['map'][$phonenumber])) {
             $phonenumber = $config['map'][$phonenumber];
 
-        } else {
+        } else if ($external) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "{$config['intern_api_url']}users/phone?name={$query}");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -49,12 +49,39 @@ class CallCommand extends BaseCommand
 
             $response = json_decode(curl_exec($ch));
             curl_close($ch);
-            if ($external) {
-                if (isset($response->phone_number)) {
-                    $phonenumber = $response->phone_number;
+            if (isset($response->phone_number)) {
+                $phonenumber = $response->phone_number;
+            }
+        } else {
+            $xml = simplexml_load_string(file_get_contents($config['phonebook']));
+
+            $users = (object)[
+                'full' => [],
+                'partial' => [],
+                'firstname' => [],
+                'lastname' => [],
+            ];
+
+            foreach ($xml as $item) {
+                $firstname = strtolower(trim($item->FirstName));
+                $lastname = strtolower(trim(str_replace('(E)', '', (string)$item->LastName)));
+                $name = "{$firstname} {$lastname}";
+                $number = (int)trim((string)$item->Phone->phonenumber);
+
+                if ($query == $name) {
+                    $users->full[] = $number;
+                } else if (strpos($name, $query) !== false) {
+                    $users->partial[] = $number;
+                } else if (strpos($firstname, $query) !== false) {
+                    $users->firstname[] = $number;
+                } else if (strpos($lastname, $query) !== false) {
+                    $users->lastname[] = $number;
                 }
-            } else if (isset($response->phone_internal)) {
-                $phonenumber = $response->phone_internal;
+            }
+
+            $numbers = array_merge($users->full, $users->partial, $users->firstname, $users->lastname);
+            if (count($numbers)) {
+                $phonenumber = array_shift($numbers);
             }
         }
 
