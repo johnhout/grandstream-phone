@@ -33,7 +33,7 @@ class CallCommand extends BaseCommand
     {
         $query = strtolower(trim($input->getArgument('query')));
         $external = (trim($input->getArgument('external')) == 1);
-        $phonenumber = str_replace(' ', '', $query);
+        $phonenumber = str_replace([' ', '-'], '', $query);
 
         $config = $this->getYamlConfig();
         if (isset($config['map'][$phonenumber])) {
