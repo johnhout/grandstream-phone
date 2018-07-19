@@ -41,7 +41,7 @@ class CallCommand extends BaseCommand
 
         } else if ($external) {
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "{$config['intern_api_url']}users/phone?name={$query}");
+            curl_setopt($ch, CURLOPT_URL, "{$config['intern_api_url']}users/phone?name={$phonenumber}");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 "X-API-KEY: {$config['intern_api_key']}"
